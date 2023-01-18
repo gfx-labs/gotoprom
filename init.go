@@ -16,6 +16,7 @@ import (
 type Builder func(
 	name, help, namespace string,
 	labelNames []string,
+	constLabels prometheus.Labels,
 	tag reflect.StructTag,
 ) (func(prometheus.Labels) interface{}, prometheus.Collector, error)
 
@@ -29,10 +30,10 @@ type Initializer interface {
 	AddBuilder(typ reflect.Type, registerer Builder) error
 
 	// MustInit initializes the metrics or panics.
-	MustInit(metrics interface{}, namespace string)
+	MustInit(metrics interface{}, namespace string, constLabels prometheus.Labels)
 
 	// Init initializes the metrics in the given namespace.
-	Init(metrics interface{}, namespace string) error
+	Init(metrics interface{}, namespace string, constLabels prometheus.Labels) error
 }
 
 //go:generate mockery -testonly -inpkg -case underscore -name Notifier
@@ -69,23 +70,23 @@ func (in initializer) AddBuilder(typ reflect.Type, builder Builder) error {
 }
 
 // MustInit initializes the metrics or panics.
-func (in initializer) MustInit(metrics interface{}, namespace string) {
-	if err := in.Init(metrics, namespace); err != nil {
+func (in initializer) MustInit(metrics interface{}, namespace string, constLabels prometheus.Labels) {
+	if err := in.Init(metrics, namespace, constLabels); err != nil {
 		panic(err)
 	}
 }
 
 // Init initializes the metrics in the given namespace.
-func (in initializer) Init(metrics interface{}, namespace string) error {
+func (in initializer) Init(metrics interface{}, namespace string, constLabels prometheus.Labels) error {
 	metricsPtr := reflect.ValueOf(metrics)
 	if metricsPtr.Kind() != reflect.Ptr {
 		return fmt.Errorf("expected pointer to metrics struct, got %q", metricsPtr.Kind())
 	}
 
-	return in.initMetrics(metricsPtr.Elem(), namespace)
+	return in.initMetrics(metricsPtr.Elem(), constLabels, namespace)
 }
 
-func (in initializer) initMetrics(group reflect.Value, namespaces ...string) error {
+func (in initializer) initMetrics(group reflect.Value, constLabels prometheus.Labels, namespaces ...string) error {
 	if group.Kind() != reflect.Struct {
 		return fmt.Errorf("expected group %s to be a struct, got %q", group.Type().Name(), group.Kind())
 	}
@@ -95,7 +96,7 @@ func (in initializer) initMetrics(group reflect.Value, namespaces ...string) err
 		fieldType := group.Type().Field(i)
 
 		if fieldType.Type.Kind() == reflect.Func {
-			if err := in.initMetricFunc(field, fieldType, namespaces...); err != nil {
+			if err := in.initMetricFunc(field, fieldType, constLabels, namespaces...); err != nil {
 				return err
 			}
 		} else if fieldType.Type.Kind() == reflect.Struct {
@@ -103,7 +104,7 @@ func (in initializer) initMetrics(group reflect.Value, namespaces ...string) err
 			if !ok {
 				return fmt.Errorf("field %s does not have the namespace tag defined", fieldType.Name)
 			}
-			if err := in.initMetrics(field, append(namespaces, namespace)...); err != nil {
+			if err := in.initMetrics(field, constLabels, append(namespaces, namespace)...); err != nil {
 				return err
 			}
 		} else {
@@ -113,7 +114,7 @@ func (in initializer) initMetrics(group reflect.Value, namespaces ...string) err
 	return nil
 }
 
-func (in initializer) initMetricFunc(field reflect.Value, structField reflect.StructField, namespaces ...string) (err error) {
+func (in initializer) initMetricFunc(field reflect.Value, structField reflect.StructField, constLabels prometheus.Labels, namespaces ...string) (err error) {
 	namespace := strings.Join(namespaces, "_")
 	fieldType := field.Type()
 
@@ -163,7 +164,7 @@ func (in initializer) initMetricFunc(field reflect.Value, structField reflect.St
 	// metric's type is:
 	//   func(map[string]string) interface{} implements <returnArg>
 	// but there's no use case for generics in Go
-	metric, collector, err := builder(name, help, namespace, labelNames, tag)
+	metric, collector, err := builder(name, help, namespace, labelNames, constLabels, tag)
 	if err != nil {
 		return fmt.Errorf("build metric %q: %s", name, err)
 	}

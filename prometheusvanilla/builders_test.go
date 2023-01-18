@@ -39,50 +39,50 @@ func TestBuilders(t *testing.T) {
 	initLabels()
 
 	t.Run("Test building a counter", func(t *testing.T) {
-		f, c, err := BuildCounter(name, help, nameSpace, keys, "")
+		f, c, err := BuildCounter(name, help, nameSpace, keys, nil, "")
 		assert.NoError(t, err)
 		assert.Implements(t, (*prometheus.Collector)(nil), c)
 		assert.Implements(t, (*prometheus.Counter)(nil), f(labels))
 	})
 
 	t.Run("Test building a gauge", func(t *testing.T) {
-		f, c, err := BuildGauge(name, help, nameSpace, keys, "")
+		f, c, err := BuildGauge(name, help, nameSpace, keys, nil, "")
 		assert.NoError(t, err)
 		assert.Implements(t, (*prometheus.Collector)(nil), c)
 		assert.Implements(t, (*prometheus.Counter)(nil), f(labels))
 	})
 
 	t.Run("Test building a histogram", func(t *testing.T) {
-		f, c, err := BuildHistogram(name, help, nameSpace, keys, `buckets:""`)
+		f, c, err := BuildHistogram(name, help, nameSpace, keys, nil, `buckets:""`)
 		assert.NoError(t, err)
 		assert.Implements(t, (*prometheus.Collector)(nil), c)
 		assert.Implements(t, (*prometheus.Histogram)(nil), f(labels))
 	})
 
 	t.Run("Test building a histogram with malformed buckets", func(t *testing.T) {
-		_, _, err := BuildHistogram(name, help, nameSpace, keys, `buckets:"foo"`)
+		_, _, err := BuildHistogram(name, help, nameSpace, keys, nil, `buckets:"foo"`)
 		assert.Error(t, err)
 	})
 
 	t.Run("Test building a summary", func(t *testing.T) {
-		f, c, err := BuildSummary(name, help, nameSpace, keys, `objectives:""`)
+		f, c, err := BuildSummary(name, help, nameSpace, keys, nil, `objectives:""`)
 		assert.NoError(t, err)
 		assert.Implements(t, (*prometheus.Collector)(nil), c)
 		assert.Implements(t, (*prometheus.Summary)(nil), f(labels))
 	})
 
 	t.Run("Test building a summary with malformed max_age", func(t *testing.T) {
-		_, _, err := BuildSummary(name, help, nameSpace, keys, `max_age:"one year" objectives:"0.1,0.25"`)
+		_, _, err := BuildSummary(name, help, nameSpace, keys, nil, `max_age:"one year" objectives:"0.1,0.25"`)
 		assert.Error(t, err)
 	})
 
 	t.Run("Test building a summary without objectives", func(t *testing.T) {
-		_, _, err := BuildSummary(name, help, nameSpace, keys, "")
+		_, _, err := BuildSummary(name, help, nameSpace, keys, nil, "")
 		assert.Error(t, err)
 	})
 
 	t.Run("Test building a summary with malformed objectives", func(t *testing.T) {
-		_, _, err := BuildSummary(name, help, nameSpace, keys, `objectives:"."`)
+		_, _, err := BuildSummary(name, help, nameSpace, keys, nil, `objectives:"."`)
 		assert.Error(t, err)
 	})
 }

@@ -37,7 +37,7 @@ func BenchmarkGotoprom(b *testing.B) {
 	}
 	initializer := gotoprom.NewInitializer(prometheus.NewRegistry())
 	initializer.MustAddBuilder(prometheusvanilla.CounterType, prometheusvanilla.BuildCounter)
-	initializer.MustInit(&metrics, "benchmarks")
+	initializer.MustInit(&metrics, "benchmarks", nil)
 
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
