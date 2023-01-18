@@ -1,4 +1,4 @@
-module github.com/cabify/gotoprom
+module gfx.cafe/open/gotoprom
 
 go 1.12
 

@@ -3,9 +3,9 @@ package gotoprom_test
 import (
 	"testing"
 
-	"github.com/cabify/gotoprom"
+	"gfx.cafe/open/gotoprom"
 
-	"github.com/cabify/gotoprom/prometheusvanilla"
+	"gfx.cafe/open/gotoprom/prometheusvanilla"
 	"github.com/prometheus/client_golang/prometheus"
 )
 

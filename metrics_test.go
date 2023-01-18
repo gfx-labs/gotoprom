@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cabify/gotoprom"
+	"gfx.cafe/open/gotoprom"
 	"github.com/prometheus/client_golang/prometheus/testutil"
 
 	"github.com/prometheus/client_golang/prometheus"

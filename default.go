@@ -3,7 +3,7 @@ package gotoprom
 import (
 	"reflect"
 
-	"github.com/cabify/gotoprom/prometheusvanilla"
+	"gfx.cafe/open/gotoprom/prometheusvanilla"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
