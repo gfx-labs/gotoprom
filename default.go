@@ -28,11 +28,11 @@ func AddBuilder(typ reflect.Type, registerer Builder) error {
 }
 
 // MustInit initializes the metrics or panics.
-func MustInit(metrics interface{}, namespace string) {
-	DefaultInitializer.MustInit(metrics, namespace)
+func MustInit(metrics interface{}, namespace string, constLabels prometheus.Labels) {
+	DefaultInitializer.MustInit(metrics, namespace, constLabels)
 }
 
 // Init initializes the metrics in the given namespace.
-func Init(metrics interface{}, namespace string) error {
-	return DefaultInitializer.Init(metrics, namespace)
+func Init(metrics interface{}, namespace string, constLabels prometheus.Labels) error {
+	return DefaultInitializer.Init(metrics, namespace, constLabels)
 }

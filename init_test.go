@@ -15,7 +15,7 @@ func TestInitializer_MustAddBuilder(t *testing.T) {
 
 		err := initializer.Init(&struct {
 			Metric func() prometheus.Gauge `name:"gauge" help:"help"`
-		}{}, "namespace")
+		}{}, "namespace", nil)
 		assert.NoError(t, err)
 	})
 	t.Run("same builder twice panics", func(t *testing.T) {
@@ -45,7 +45,7 @@ func TestInitializer_MustInit(t *testing.T) {
 
 		structPtr := &struct{}{}
 		assert.NotPanics(t, func() {
-			initializer.MustInit(structPtr, "namespace")
+			initializer.MustInit(structPtr, "namespace", nil)
 		})
 	})
 
@@ -54,7 +54,7 @@ func TestInitializer_MustInit(t *testing.T) {
 
 		notAPointer := struct{}{}
 		assert.Panics(t, func() {
-			initializer.MustInit(notAPointer, "namespace")
+			initializer.MustInit(notAPointer, "namespace", nil)
 		})
 	})
 }
@@ -167,7 +167,7 @@ func TestInitializer_Init(t *testing.T) {
 				initializer.MustAddBuilder(prometheusvanilla.GaugeType, prometheusvanilla.BuildGauge)
 				initializer.MustAddBuilder(prometheusvanilla.SummaryType, prometheusvanilla.BuildSummary)
 
-				err := initializer.Init(tc.metrics, "namespace")
+				err := initializer.Init(tc.metrics, "namespace", nil)
 				assert.Error(t, err)
 			})
 		}

@@ -22,6 +22,7 @@ func TestMustAddBuilder(t *testing.T) {
 	builder := func(
 		name, help, namespace string,
 		labelNames []string,
+		constLabels prometheus.Labels,
 		tag reflect.StructTag,
 	) (func(prometheus.Labels) interface{}, prometheus.Collector, error) {
 		return nil, nil, expectedErr
@@ -29,7 +30,7 @@ func TestMustAddBuilder(t *testing.T) {
 
 	initializerMock.On("MustAddBuilder", typ, mock.Anything).Run(func(args mock.Arguments) {
 		// we can't assert that two functions are the same, so we invoke it and see if it's ours
-		_, _, err := args[1].(Builder)("", "", "", nil, reflect.StructTag(""))
+		_, _, err := args[1].(Builder)("", "", "", nil, nil, reflect.StructTag(""))
 		assert.Equal(t, expectedErr, err)
 	}).Once()
 
@@ -47,6 +48,7 @@ func TestAddBuilder(t *testing.T) {
 	builder := func(
 		name, help, namespace string,
 		labelNames []string,
+		constLabels prometheus.Labels,
 		tag reflect.StructTag,
 	) (func(prometheus.Labels) interface{}, prometheus.Collector, error) {
 		return nil, nil, expectedErr
@@ -54,7 +56,7 @@ func TestAddBuilder(t *testing.T) {
 
 	initializerMock.On("AddBuilder", typ, mock.Anything).Run(func(args mock.Arguments) {
 		// we can't assert that two functions are the same, so we invoke it and see if it's ours
-		_, _, err := args[1].(Builder)("", "", "", nil, reflect.StructTag(""))
+		_, _, err := args[1].(Builder)("", "", "", nil, nil, reflect.StructTag(""))
 		assert.Equal(t, expectedErr, err)
 	}).Return(expectedErr).Once()
 
@@ -74,7 +76,7 @@ func TestInit(t *testing.T) {
 
 	initializerMock.On("Init", metrics, namespace).Return(expectedErr).Once()
 
-	err := Init(metrics, namespace)
+	err := Init(metrics, namespace, nil)
 	assert.Equal(t, expectedErr, err)
 }
 
@@ -88,7 +90,7 @@ func TestMustInit(t *testing.T) {
 
 	initializerMock.On("MustInit", metrics, namespace).Once()
 
-	MustInit(metrics, namespace)
+	MustInit(metrics, namespace, nil)
 }
 
 func mockDefaultInitializer() (mock *InitializerMock, tearDown func()) {
@@ -111,11 +113,11 @@ func (m *InitializerMock) AddBuilder(typ reflect.Type, registerer Builder) error
 	return ret[0].(error)
 }
 
-func (m *InitializerMock) MustInit(metrics interface{}, namespace string) {
+func (m *InitializerMock) MustInit(metrics interface{}, namespace string, constLabels prometheus.Labels) {
 	m.Called(metrics, namespace)
 }
 
-func (m *InitializerMock) Init(metrics interface{}, namespace string) error {
+func (m *InitializerMock) Init(metrics interface{}, namespace string, constLabels prometheus.Labels) error {
 	ret := m.Called(metrics, namespace)
 	return ret[0].(error)
 }

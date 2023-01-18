@@ -28,7 +28,7 @@ func Test_InitHappyCase(t *testing.T) {
 		NoLabels                  func() prometheus.Counter         `name:"no_labels" help:"Metric without labels"`
 	}
 
-	gotoprom.MustInit(&metrics, "delirium")
+	gotoprom.MustInit(&metrics, "delirium", nil)
 
 	// Elsewhere in the code
 	theseLabels := labels{
@@ -61,7 +61,7 @@ func Test_NestedMetrics(t *testing.T) {
 		MemoryConsumption func(testLabels) prometheus.Gauge `name:"memory_consumption_bytes" help:"wololo"`
 	}
 
-	gotoprom.MustInit(&metrics, "testservice")
+	gotoprom.MustInit(&metrics, "testservice", nil)
 
 	metrics.Server.Hits(testLabels{}).Add(1.0)
 	metrics.Client.Requests(testLabels{}).Add(2.0)
@@ -102,7 +102,7 @@ func Test_EmbeddedLabels(t *testing.T) {
 		WithLabels func(specificLabels) prometheus.Counter `name:"with_labels" help:"Some metric with labels"`
 	}
 
-	gotoprom.MustInit(&metrics, "namespace")
+	gotoprom.MustInit(&metrics, "namespace", nil)
 
 	metrics.WithLabels(specificLabels{
 		commonLabels:  commonLabels{CommonValue: "common"},
@@ -127,7 +127,7 @@ func Test_LabelsWithBooleans(t *testing.T) {
 		WithLabels func(labelsWithBools) prometheus.Histogram `name:"with_booleans" help:"Parse booleans as strings" buckets:""`
 	}
 
-	gotoprom.MustInit(&metrics, "testbooleans")
+	gotoprom.MustInit(&metrics, "testbooleans", nil)
 
 	metrics.WithLabels(labelsWithBools{
 		StringValue:  "string",
@@ -156,7 +156,7 @@ func Test_LabelsWithInts(t *testing.T) {
 		WithLabels func(labelsWithInts) prometheus.Histogram `name:"with_ints" help:"Parse ints as strings" buckets:""`
 	}
 
-	gotoprom.MustInit(&metrics, "testints")
+	gotoprom.MustInit(&metrics, "testints", nil)
 
 	metrics.WithLabels(labelsWithInts{
 		StringValue: "string",
@@ -193,7 +193,7 @@ func Test_LabelsWithUints(t *testing.T) {
 		WithLabels func(labelsWithUints) prometheus.Histogram `name:"with_uints" help:"Parse uints as strings" buckets:""`
 	}
 
-	gotoprom.MustInit(&metrics, "testuints")
+	gotoprom.MustInit(&metrics, "testuints", nil)
 
 	metrics.WithLabels(labelsWithUints{
 		StringValue: "string",
@@ -225,7 +225,7 @@ func Test_DefaultLabelValues(t *testing.T) {
 	var metrics struct {
 		WithLabels func(labelsWithEmptyValues) prometheus.Histogram `name:"with_labels" help:"Assign default values" buckets:"10,20,30"`
 	}
-	gotoprom.MustInit(&metrics, "testdefault")
+	gotoprom.MustInit(&metrics, "testdefault", nil)
 
 	metrics.WithLabels(labelsWithEmptyValues{}).Observe(288.0)
 
@@ -241,7 +241,7 @@ func Test_HistogramWithUnsupportedBuckets(t *testing.T) {
 	var metrics struct {
 		Histogram func() prometheus.Histogram `name:"with_broken_buckets" help:"Wrong buckets" buckets:"0.005, whatever"`
 	}
-	err := gotoprom.Init(&metrics, "test")
+	err := gotoprom.Init(&metrics, "test", nil)
 	assert.NotNil(t, err)
 }
 
@@ -256,7 +256,7 @@ func Test_WrongLabels(t *testing.T) {
 			WithLabels func(labelsWithUnsupportedFields) prometheus.Counter `name:"with_unsupported_fields" help:"Can't parse float labels"`
 		}
 
-		err := gotoprom.Init(&metrics, "test")
+		err := gotoprom.Init(&metrics, "test", nil)
 		assert.NotNil(t, err)
 	})
 
@@ -270,7 +270,7 @@ func Test_WrongLabels(t *testing.T) {
 			WithLabels func(labelsWithUnsupportedFields) prometheus.Counter `name:"with_unsupported_fields" help:"Tag is missing"`
 		}
 
-		err := gotoprom.Init(&metrics, "test")
+		err := gotoprom.Init(&metrics, "test", nil)
 		assert.NotNil(t, err)
 	})
 
@@ -284,7 +284,7 @@ func Test_WrongLabels(t *testing.T) {
 			WithLabels func(labelsWithUnsupportedFields) prometheus.Counter `name:"with_unsupported_fields" help:"Same string value"`
 		}
 
-		err := gotoprom.Init(&metrics, "test")
+		err := gotoprom.Init(&metrics, "test", nil)
 		assert.NotNil(t, err)
 	})
 
@@ -301,7 +301,7 @@ func Test_WrongLabels(t *testing.T) {
 			WithLabels func(labelsWithUnsupportedFields) prometheus.Counter `name:"with_unsupported_fields" help:"Same string value in the embedded struct"`
 		}
 
-		err := gotoprom.Init(&metrics, "test")
+		err := gotoprom.Init(&metrics, "test", nil)
 		assert.NotNil(t, err)
 	})
 
@@ -312,7 +312,7 @@ func Test_WrongLabels(t *testing.T) {
 			WithLabels func(labels) prometheus.Counter `name:"with_unsupported_fields" help:"Labels are not a struct"`
 		}
 
-		err := gotoprom.Init(&metrics, "test")
+		err := gotoprom.Init(&metrics, "test", nil)
 		assert.NotNil(t, err)
 	})
 }
@@ -324,7 +324,7 @@ func Test_SummaryWithSpecifiedMaxAge(t *testing.T) {
 		Summary func() prometheus.Summary `name:"without_max_age" help:"Uses default value for max age" max_age:"1s" objectives:".5,.9,.99"`
 	}
 
-	err := gotoprom.Init(&metrics, "test")
+	err := gotoprom.Init(&metrics, "test", nil)
 	assert.NoError(t, err)
 
 	metrics.Summary().Observe(1.0)
