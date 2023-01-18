@@ -27,9 +27,10 @@ var (
 func BuildCounter(name, help, namespace string, labelNames []string, constLabels prometheus.Labels, tag reflect.StructTag) (func(prometheus.Labels) interface{}, prometheus.Collector, error) {
 	counter := prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name:      name,
-			Help:      help,
-			Namespace: namespace,
+			Name:        name,
+			Help:        help,
+			Namespace:   namespace,
+			ConstLabels: constLabels,
 		},
 		labelNames,
 	)
@@ -44,9 +45,10 @@ func BuildCounter(name, help, namespace string, labelNames []string, constLabels
 func BuildGauge(name, help, namespace string, labelNames []string, constLabels prometheus.Labels, tag reflect.StructTag) (func(prometheus.Labels) interface{}, prometheus.Collector, error) {
 	gauge := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Name:      name,
-			Help:      help,
-			Namespace: namespace,
+			Name:        name,
+			Help:        help,
+			Namespace:   namespace,
+			ConstLabels: constLabels,
 		},
 		labelNames,
 	)
@@ -69,10 +71,11 @@ func BuildHistogram(name, help, namespace string, labelNames []string, constLabe
 
 	hist := prometheus.NewHistogramVec(
 		prometheus.HistogramOpts{
-			Name:      name,
-			Help:      help,
-			Buckets:   buckets,
-			Namespace: namespace,
+			Name:        name,
+			Help:        help,
+			Buckets:     buckets,
+			Namespace:   namespace,
+			ConstLabels: constLabels,
 		},
 		labelNames,
 	)
@@ -99,11 +102,12 @@ func BuildSummary(name, help, namespace string, labelNames []string, constLabels
 
 	sum := prometheus.NewSummaryVec(
 		prometheus.SummaryOpts{
-			Name:       name,
-			Help:       help,
-			Namespace:  namespace,
-			MaxAge:     maxAge,
-			Objectives: objectives,
+			Name:        name,
+			Help:        help,
+			Namespace:   namespace,
+			MaxAge:      maxAge,
+			Objectives:  objectives,
+			ConstLabels: constLabels,
 		},
 		labelNames,
 	)
