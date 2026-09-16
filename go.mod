@@ -1,4 +1,4 @@
-module gfx.cafe/open/gotoprom
+module github.com/gfx-labs/gotoprom
 
 go 1.12
 

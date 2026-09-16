@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"gfx.cafe/open/gotoprom/prometheusvanilla"
+	"github.com/gfx-labs/gotoprom/prometheusvanilla"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
